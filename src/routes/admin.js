@@ -83,6 +83,27 @@ router.get('/analytics', auth('admin'), async (req, res) => {
   }
 });
 
+router.get('/analytics/dashboard', auth('admin'), async (req, res) => {
+  try {
+    const perDay = await Order.aggregate([
+      { $group: { _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } }, orders: { $sum: 1 }, revenue: { $sum: '$finalTotal' } } },
+      { $sort: { _id: 1 } }
+    ]);
+    const topVendors = await Order.aggregate([
+      { $match: { status: 'delivered' } },
+      { $group: { _id: '$vendor', revenue: { $sum: '$finalTotal' }, orders: { $sum: 1 } } },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+      { $lookup: { from: 'vendors', localField: '_id', foreignField: '_id', as: 'vendor' } },
+      { $unwind: '$vendor' },
+      { $project: { _id: 0, vendor: '$vendor.name', revenue: 1, orders: 1 } }
+    ]);
+    res.json({ perDay, topVendors });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/vendors/:vendorId/analytics', auth('admin'), async (req, res) => {
   try {
     const orders = await Order.find({ vendor: req.params.vendorId, status: 'delivered' });

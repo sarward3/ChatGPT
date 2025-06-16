@@ -16,7 +16,7 @@ This repository contains a Node.js backend built with Express and MongoDB. Along
 
 ## API Overview
 
-These routes illustrate the basic structure of an e-commerce food app. Authentication uses JSON Web Tokens and passwords are hashed with bcrypt. Rate limiting and Helmet help secure requests.
+These routes illustrate the basic structure of an e-commerce food app. Authentication uses JSON Web Tokens and passwords are hashed with bcrypt. Rate limiting and Helmet help secure requests. Socket.IO provides real-time order updates.
 
 - **POST /api/customers/register** – register new customer
 - **POST /api/customers/login** – login and receive JWT
@@ -38,11 +38,13 @@ These routes illustrate the basic structure of an e-commerce food app. Authentic
 - **POST /api/riders/login** – rider login
 - **POST /api/riders/orders/:orderId/status** – update order status (authenticated)
 - **GET /api/riders/earnings** – view rider earnings
+- **GET /api/riders/orders/:orderId/route** – get routing info for delivery
 - **POST /api/admin/register** – register admin
 - **POST /api/admin/login** – admin login
 - **GET /api/admin/orders** – list all orders (admin only)
 - **POST /api/admin/orders/:orderId/assign/:riderId** – assign rider to order (admin only)
 - **GET /api/admin/analytics** – simple statistics (admin only)
+- **GET /api/admin/analytics/dashboard** – revenue and order breakdowns (admin only)
 - **GET /api/admin/vendors/:id/analytics** – vendor revenue stats (admin only)
 - **GET /api/admin/users** – list all users
 - **POST /api/admin/coupons** – create system-wide coupon
@@ -53,4 +55,4 @@ These routes illustrate the basic structure of an e-commerce food app. Authentic
 - **GET /api/customers/orders** – order history (authenticated)
 - **GET /api/customers/orders/:id** – fetch single order (authenticated)
 
-This codebase remains a demonstration. While additional pieces like coupons, wallet support and support tickets are present, a production system would require much deeper integrations and extensive testing.
+This codebase remains a demonstration. While additional pieces like coupons, wallet support and support tickets are present, a production system would require much deeper integrations and extensive testing. Push notifications are implemented using a placeholder service and real-time updates use Socket.IO.

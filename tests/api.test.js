@@ -287,3 +287,20 @@ test('resolve support ticket', async () => {
     .expect(200);
   expect(res.body.resolved).toBe(true);
 });
+
+test('rider route endpoint', async () => {
+  await Order.findByIdAndUpdate(orderId, { deliveryLocation: { coordinates: [56, 26] } });
+  const res = await request(app)
+    .get(`/api/riders/orders/${orderId}/route`)
+    .set('Authorization', `Bearer ${riderToken}`)
+    .expect(200);
+  expect(Array.isArray(res.body.path)).toBe(true);
+});
+
+test('admin dashboard analytics', async () => {
+  const res = await request(app)
+    .get('/api/admin/analytics/dashboard')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(Array.isArray(res.body.perDay)).toBe(true);
+});

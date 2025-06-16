@@ -4,6 +4,9 @@ const router = express.Router();
 const Rider = require('../models/Rider');
 const Order = require('../models/Order');
 const auth = require('../middleware/auth');
+const { io } = require('../index');
+const { sendPush } = require('../services/push');
+const { getRoute } = require('../services/route');
 
 router.post('/register', async (req, res) => {
   try {
@@ -40,6 +43,8 @@ router.post('/orders/:orderId/status', auth('rider'), async (req, res) => {
     if (req.body.status === 'delivered') {
       await Rider.findByIdAndUpdate(req.user.id, { $inc: { earnings: order.finalTotal || order.total } });
     }
+    io.emit('orderUpdated', order);
+    sendPush('customer-' + order.customer, `Order ${order._id} now ${order.status}`);
     res.json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -50,6 +55,19 @@ router.get('/earnings', auth('rider'), async (req, res) => {
   try {
     const rider = await Rider.findById(req.user.id);
     res.json({ earnings: rider.earnings });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/orders/:orderId/route', auth('rider'), async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId).populate('vendor');
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    const start = { lat: order.vendor.location.coordinates[1], lng: order.vendor.location.coordinates[0] };
+    const end = { lat: order.deliveryLocation.coordinates[1], lng: order.deliveryLocation.coordinates[0] };
+    const route = await getRoute(start, end);
+    res.json(route);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

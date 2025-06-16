@@ -5,6 +5,8 @@ const Customer = require('../models/Customer');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
 const auth = require('../middleware/auth');
+const { io } = require('../index');
+const { sendPush } = require('../services/push');
 
 router.post('/register', async (req, res) => {
   try {
@@ -54,6 +56,8 @@ router.post('/orders', auth('customer'), async (req, res) => {
     const order = new Order({ ...req.body, customer: req.user.id, status, coupon: coupon ? coupon._id : undefined, finalTotal });
     await order.save();
     await Customer.findByIdAndUpdate(req.user.id, { $inc: { loyaltyPoints: 1 } });
+    io.emit('orderCreated', order);
+    sendPush('vendor-' + order.vendor, `New order ${order._id}`);
     res.status(201).json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });

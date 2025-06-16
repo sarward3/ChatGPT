@@ -6,6 +6,8 @@ const MenuItem = require('../models/MenuItem');
 const Order = require('../models/Order');
 const Coupon = require('../models/Coupon');
 const auth = require('../middleware/auth');
+const { io } = require('../index');
+const { sendPush } = require('../services/push');
 
 router.get('/search', async (req, res) => {
   const { q, rating, lng, lat, distance } = req.query;
@@ -102,6 +104,8 @@ router.post('/orders/:orderId/status', auth('vendor'), async (req, res) => {
     if (!order) return res.status(404).json({ error: 'Order not found' });
     order.status = req.body.status;
     await order.save();
+    io.emit('orderUpdated', order);
+    sendPush('customer-' + order.customer, `Order ${order._id} now ${order.status}`);
     res.json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });
