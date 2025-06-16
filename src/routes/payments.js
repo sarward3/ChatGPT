@@ -3,6 +3,7 @@ const router = express.Router();
 const Payment = require('../models/Payment');
 const Order = require('../models/Order');
 const auth = require('../middleware/auth');
+const { processCardPayment } = require('../services/payment');
 
 router.post('/', auth('customer'), async (req, res) => {
   try {
@@ -19,6 +20,11 @@ router.post('/', auth('customer'), async (req, res) => {
       }
       customer.walletBalance -= amount;
       await customer.save();
+    } else if (method === 'card') {
+      const result = await processCardPayment(orderDoc, amount);
+      if (result.status !== 'success') {
+        return res.status(400).json({ error: 'Card payment failed' });
+      }
     }
     const payment = new Payment({ order, method, amount, status: 'paid' });
     await payment.save();

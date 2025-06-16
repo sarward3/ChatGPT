@@ -13,11 +13,20 @@ const orderSchema = new Schema({
   }],
   status: {
     type: String,
-    enum: ['pending', 'accepted', 'preparing', 'ready', 'on_the_way', 'delivered', 'cancelled'],
+    enum: ['pending', 'scheduled', 'accepted', 'preparing', 'ready', 'on_the_way', 'delivered', 'cancelled'],
     default: 'pending'
   },
   scheduledAt: Date,
   notes: String,
+  deliveryAddress: String,
+  deliveryLocation: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: { type: [Number], index: '2dsphere' }
+  },
   total: Number,
   finalTotal: Number,
   coupon: { type: Schema.Types.ObjectId, ref: 'Coupon' }

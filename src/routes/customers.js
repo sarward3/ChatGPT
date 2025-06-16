@@ -47,7 +47,11 @@ router.post('/orders', auth('customer'), async (req, res) => {
       }
     }
     const finalTotal = Math.max(0, req.body.total - discount);
-    const order = new Order({ ...req.body, customer: req.user.id, coupon: coupon ? coupon._id : undefined, finalTotal });
+    let status = 'pending';
+    if (req.body.scheduledAt && new Date(req.body.scheduledAt) > new Date()) {
+      status = 'scheduled';
+    }
+    const order = new Order({ ...req.body, customer: req.user.id, status, coupon: coupon ? coupon._id : undefined, finalTotal });
     await order.save();
     await Customer.findByIdAndUpdate(req.user.id, { $inc: { loyaltyPoints: 1 } });
     res.status(201).json(order);
@@ -81,6 +85,16 @@ router.get('/wallet', auth('customer'), async (req, res) => {
   try {
     const customer = await Customer.findById(req.user.id);
     res.json({ walletBalance: customer.walletBalance });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/orders/:id', auth('customer'), async (req, res) => {
+  try {
+    const order = await Order.findOne({ _id: req.params.id, customer: req.user.id });
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    res.json(order);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

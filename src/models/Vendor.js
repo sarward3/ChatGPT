@@ -12,6 +12,14 @@ const vendorSchema = new Schema({
   language: { type: String, default: 'en' },
   balance: { type: Number, default: 0 },
   rating: { type: Number, default: 0 },
+  location: {
+    type: {
+      type: String,
+      enum: ['Point'],
+      default: 'Point'
+    },
+    coordinates: { type: [Number], index: '2dsphere' }
+  },
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }]
 }, { timestamps: true });
 

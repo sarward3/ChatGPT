@@ -8,12 +8,23 @@ const Coupon = require('../models/Coupon');
 const auth = require('../middleware/auth');
 
 router.get('/search', async (req, res) => {
-  const { q, rating } = req.query;
-  const regex = new RegExp(q, 'i');
+  const { q, rating, lng, lat, distance } = req.query;
+  const regex = q ? new RegExp(q, 'i') : null;
   try {
-    const query = { $or: [{ name: regex }, { cuisine: regex }] };
+    const query = {};
+    if (regex) {
+      query.$or = [{ name: regex }, { cuisine: regex }];
+    }
     if (rating) {
       query.rating = { $gte: Number(rating) };
+    }
+    if (lng && lat && distance) {
+      query.location = {
+        $near: {
+          $geometry: { type: 'Point', coordinates: [Number(lng), Number(lat)] },
+          $maxDistance: Number(distance)
+        }
+      };
     }
     const vendors = await Vendor.find(query);
     res.json(vendors);
@@ -104,6 +115,25 @@ router.post('/coupons', auth('vendor'), async (req, res) => {
     res.status(201).json(coupon);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+router.patch('/profile', auth('vendor'), async (req, res) => {
+  try {
+    const vendor = await Vendor.findByIdAndUpdate(req.user.id, req.body, { new: true });
+    res.json(vendor);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.get('/analytics', auth('vendor'), async (req, res) => {
+  try {
+    const orders = await Order.find({ vendor: req.user.id, status: 'delivered' });
+    const revenue = orders.reduce((t, o) => t + (o.finalTotal || o.total), 0);
+    res.json({ orders: orders.length, revenue });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

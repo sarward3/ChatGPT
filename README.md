@@ -1,6 +1,6 @@
 # Food Marketplace Backend
 
-This repository contains a Node.js backend built with Express and MongoDB. Along with authentication and role protected routes, it now covers more advanced features such as coupons, wallet payments and support tickets. While still a demonstration, the code illustrates pieces of an enterprise grade platform.
+This repository contains a Node.js backend built with Express and MongoDB. Along with authentication and role protected routes, it now covers more advanced features such as coupons, wallet payments, scheduled orders and geolocation search. While still a demonstration, the code illustrates pieces of an enterprise grade platform.
 
 ## Setup
 
@@ -30,8 +30,10 @@ These routes illustrate the basic structure of an e-commerce food app. Authentic
 - **PATCH /api/vendors/menu/:itemId** – update menu item (authenticated)
 - **GET /api/vendors/orders/:vendorId** – list vendor orders (authenticated)
 - **POST /api/vendors/orders/:orderId/status** – update order status (authenticated)
-- **GET /api/vendors/search?q=** – search vendors by name or cuisine
+- **GET /api/vendors/search?q=&lng=&lat=&distance=** – search vendors with optional text and location filter
 - **POST /api/vendors/coupons** – vendor issue coupon (authenticated)
+- **PATCH /api/vendors/profile** – update vendor profile (authenticated)
+- **GET /api/vendors/analytics** – vendor revenue stats (authenticated)
 - **POST /api/riders/register** – register rider
 - **POST /api/riders/login** – rider login
 - **POST /api/riders/orders/:orderId/status** – update order status (authenticated)
@@ -41,11 +43,14 @@ These routes illustrate the basic structure of an e-commerce food app. Authentic
 - **GET /api/admin/orders** – list all orders (admin only)
 - **POST /api/admin/orders/:orderId/assign/:riderId** – assign rider to order (admin only)
 - **GET /api/admin/analytics** – simple statistics (admin only)
+- **GET /api/admin/vendors/:id/analytics** – vendor revenue stats (admin only)
 - **GET /api/admin/users** – list all users
 - **POST /api/admin/coupons** – create system-wide coupon
 - **POST /api/payments** – record payment for an order
 - **POST /api/reviews** – submit rating/review for vendor (authenticated)
 - **POST /api/support** – create support ticket
+- **PATCH /api/support/:id/resolve** – mark ticket resolved (admin)
 - **GET /api/customers/orders** – order history (authenticated)
+- **GET /api/customers/orders/:id** – fetch single order (authenticated)
 
 This codebase remains a demonstration. While additional pieces like coupons, wallet support and support tickets are present, a production system would require much deeper integrations and extensive testing.

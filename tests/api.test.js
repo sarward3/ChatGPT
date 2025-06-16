@@ -122,6 +122,14 @@ test('search vendors', async () => {
   expect(res.body.length).toBeGreaterThan(0);
 });
 
+test('search vendors by location', async () => {
+  await Vendor.findByIdAndUpdate(vendorId, { location: { coordinates: [55, 25] } });
+  const res = await request(app)
+    .get('/api/vendors/search?lng=55&lat=25&distance=1000')
+    .expect(200);
+  expect(Array.isArray(res.body)).toBe(true);
+});
+
 test('record payment', async () => {
   const res = await request(app)
     .post('/api/payments')
@@ -219,6 +227,15 @@ test('vendor updates menu item', async () => {
   expect(res.body.available).toBe(false);
 });
 
+test('vendor updates profile', async () => {
+  const res = await request(app)
+    .patch('/api/vendors/profile')
+    .set('Authorization', `Bearer ${vendorToken}`)
+    .send({ openHours: '9-5' })
+    .expect(200);
+  expect(res.body.openHours).toBe('9-5');
+});
+
 test('rider earnings endpoint', async () => {
   const res = await request(app)
     .get('/api/riders/earnings')
@@ -233,4 +250,40 @@ test('admin lists users', async () => {
     .set('Authorization', `Bearer ${adminToken}`)
     .expect(200);
   expect(res.body.customers.length).toBeGreaterThan(0);
+});
+
+test('get single order', async () => {
+  const res = await request(app)
+    .get(`/api/customers/orders/${orderId}`)
+    .set('Authorization', `Bearer ${customerToken}`)
+    .expect(200);
+  expect(res.body._id).toBe(orderId);
+});
+
+test('vendor analytics endpoint', async () => {
+  const res = await request(app)
+    .get('/api/vendors/analytics')
+    .set('Authorization', `Bearer ${vendorToken}`)
+    .expect(200);
+  expect(res.body.orders).toBeDefined();
+});
+
+test('admin vendor analytics', async () => {
+  const res = await request(app)
+    .get(`/api/admin/vendors/${vendorId}/analytics`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(res.body.orders).toBeDefined();
+});
+
+test('resolve support ticket', async () => {
+  const tickets = await request(app)
+    .get('/api/support')
+    .set('Authorization', `Bearer ${adminToken}`);
+  const ticketId = tickets.body[0]._id;
+  const res = await request(app)
+    .patch(`/api/support/${ticketId}/resolve`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(res.body.resolved).toBe(true);
 });

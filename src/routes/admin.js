@@ -83,6 +83,16 @@ router.get('/analytics', auth('admin'), async (req, res) => {
   }
 });
 
+router.get('/vendors/:vendorId/analytics', auth('admin'), async (req, res) => {
+  try {
+    const orders = await Order.find({ vendor: req.params.vendorId, status: 'delivered' });
+    const revenue = orders.reduce((t, o) => t + (o.finalTotal || o.total), 0);
+    res.json({ orders: orders.length, revenue });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/coupons', auth('admin'), async (req, res) => {
   try {
     const coupon = new Coupon(req.body);
