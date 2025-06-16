@@ -4,6 +4,7 @@ const router = express.Router();
 const Vendor = require('../models/Vendor');
 const MenuItem = require('../models/MenuItem');
 const Order = require('../models/Order');
+const Coupon = require('../models/Coupon');
 const auth = require('../middleware/auth');
 
 router.get('/search', async (req, res) => {
@@ -58,6 +59,16 @@ router.get('/orders/:vendorId', auth('vendor'), async (req, res) => {
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/coupons', auth('vendor'), async (req, res) => {
+  try {
+    const coupon = new Coupon({ ...req.body, vendor: req.user.id });
+    await coupon.save();
+    res.status(201).json(coupon);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 

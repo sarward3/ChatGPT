@@ -7,7 +7,8 @@ const customerSchema = new Schema({
   email: { type: String, required: true, unique: true },
   phone: { type: String },
   address: { type: String },
-  password: { type: String, required: true }
+  password: { type: String, required: true },
+  walletBalance: { type: Number, default: 0 }
 }, { timestamps: true });
 
 customerSchema.pre('save', async function(next) {

@@ -131,4 +131,41 @@ test('admin analytics', async () => {
     .set('Authorization', `Bearer ${adminToken}`)
     .expect(200);
   expect(res.body.orders).toBeGreaterThan(0);
+  expect(res.body.revenue).toBeGreaterThan(0);
+});
+
+test('admin creates coupon', async () => {
+  const res = await request(app)
+    .post('/api/admin/coupons')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .send({ code: 'DISCOUNT10', discountPct: 10 })
+    .expect(201);
+  expect(res.body.code).toBe('DISCOUNT10');
+});
+
+test('customer tops up wallet', async () => {
+  const res = await request(app)
+    .post('/api/customers/wallet')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .send({ amount: 20 })
+    .expect(200);
+  expect(res.body.walletBalance).toBe(20);
+});
+
+test('customer places order with coupon', async () => {
+  const res = await request(app)
+    .post('/api/customers/orders')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .send({ vendor: vendorId, items: [{ name: 'Burger', quantity: 1, price: 20 }], total: 20, couponCode: 'DISCOUNT10' })
+    .expect(201);
+  expect(res.body.finalTotal).toBe(18);
+});
+
+test('customer creates support ticket', async () => {
+  const res = await request(app)
+    .post('/api/support')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .send({ message: 'Help!' })
+    .expect(201);
+  expect(res.body.message).toBe('Help!');
 });

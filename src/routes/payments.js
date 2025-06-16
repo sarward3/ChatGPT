@@ -11,6 +11,15 @@ router.post('/', auth('customer'), async (req, res) => {
     if (!orderDoc || orderDoc.customer.toString() !== req.user.id) {
       return res.status(400).json({ error: 'Invalid order' });
     }
+    if (method === 'wallet') {
+      const Customer = require('../models/Customer');
+      const customer = await Customer.findById(req.user.id);
+      if (customer.walletBalance < amount) {
+        return res.status(400).json({ error: 'Insufficient wallet balance' });
+      }
+      customer.walletBalance -= amount;
+      await customer.save();
+    }
     const payment = new Payment({ order, method, amount, status: 'paid' });
     await payment.save();
     res.status(201).json(payment);

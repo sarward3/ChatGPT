@@ -16,7 +16,9 @@ const orderSchema = new Schema({
     default: 'pending'
   },
   scheduledAt: Date,
-  total: Number
+  total: Number,
+  finalTotal: Number,
+  coupon: { type: Schema.Types.ObjectId, ref: 'Coupon' }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

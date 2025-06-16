@@ -6,6 +6,7 @@ const Order = require('../models/Order');
 const Customer = require('../models/Customer');
 const Vendor = require('../models/Vendor');
 const Rider = require('../models/Rider');
+const Coupon = require('../models/Coupon');
 const auth = require('../middleware/auth');
 
 router.post('/register', async (req, res) => {
@@ -48,9 +49,24 @@ router.get('/analytics', auth('admin'), async (req, res) => {
     const customers = await Customer.countDocuments();
     const vendors = await Vendor.countDocuments();
     const riders = await Rider.countDocuments();
-    res.json({ orders, customers, vendors, riders });
+    const revenueAgg = await Order.aggregate([
+      { $match: { status: 'delivered' } },
+      { $group: { _id: null, total: { $sum: '$finalTotal' } } }
+    ]);
+    const revenue = revenueAgg[0] ? revenueAgg[0].total : 0;
+    res.json({ orders, customers, vendors, riders, revenue });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+});
+
+router.post('/coupons', auth('admin'), async (req, res) => {
+  try {
+    const coupon = new Coupon(req.body);
+    await coupon.save();
+    res.status(201).json(coupon);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
   }
 });
 

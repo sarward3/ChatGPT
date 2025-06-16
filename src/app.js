@@ -9,6 +9,7 @@ const riderRoutes = require('./routes/riders');
 const adminRoutes = require('./routes/admin');
 const paymentRoutes = require('./routes/payments');
 const reviewRoutes = require('./routes/reviews');
+const supportRoutes = require('./routes/support');
 
 const app = express();
 app.use(cors());
@@ -22,6 +23,7 @@ app.use('/api/riders', riderRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/payments', paymentRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/support', supportRoutes);
 
 app.get('/', (req, res) => {
   res.send('Food Marketplace API');
