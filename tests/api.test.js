@@ -99,3 +99,36 @@ test('admin lists all orders', async () => {
     .expect(200);
   expect(res.body.length).toBeGreaterThan(0);
 });
+
+test('search vendors', async () => {
+  const res = await request(app)
+    .get('/api/vendors/search?q=Pizza')
+    .expect(200);
+  expect(res.body.length).toBeGreaterThan(0);
+});
+
+test('record payment', async () => {
+  const res = await request(app)
+    .post('/api/payments')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .send({ order: orderId, method: 'card', amount: 10 })
+    .expect(201);
+  expect(res.body.status).toBe('paid');
+});
+
+test('submit review', async () => {
+  const res = await request(app)
+    .post('/api/reviews')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .send({ vendor: vendorId, order: orderId, rating: 5, comment: 'Great!' })
+    .expect(201);
+  expect(res.body.rating).toBe(5);
+});
+
+test('admin analytics', async () => {
+  const res = await request(app)
+    .get('/api/admin/analytics')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(res.body.orders).toBeGreaterThan(0);
+});

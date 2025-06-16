@@ -7,7 +7,9 @@ const vendorSchema = new Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   address: { type: String },
-  cuisine: [String]
+  cuisine: [String],
+  rating: { type: Number, default: 0 },
+  reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }]
 }, { timestamps: true });
 
 vendorSchema.pre('save', async function(next) {

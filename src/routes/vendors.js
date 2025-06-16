@@ -6,6 +6,17 @@ const MenuItem = require('../models/MenuItem');
 const Order = require('../models/Order');
 const auth = require('../middleware/auth');
 
+router.get('/search', async (req, res) => {
+  const { q } = req.query;
+  const regex = new RegExp(q, 'i');
+  try {
+    const vendors = await Vendor.find({ $or: [{ name: regex }, { cuisine: regex }] });
+    res.json(vendors);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post('/register', async (req, res) => {
   try {
     const vendor = new Vendor(req.body);

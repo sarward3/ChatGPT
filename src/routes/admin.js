@@ -3,6 +3,9 @@ const jwt = require('jsonwebtoken');
 const router = express.Router();
 const Admin = require('../models/Admin');
 const Order = require('../models/Order');
+const Customer = require('../models/Customer');
+const Vendor = require('../models/Vendor');
+const Rider = require('../models/Rider');
 const auth = require('../middleware/auth');
 
 router.post('/register', async (req, res) => {
@@ -34,6 +37,18 @@ router.get('/orders', auth('admin'), async (req, res) => {
   try {
     const orders = await Order.find();
     res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+router.get('/analytics', auth('admin'), async (req, res) => {
+  try {
+    const orders = await Order.countDocuments();
+    const customers = await Customer.countDocuments();
+    const vendors = await Vendor.countDocuments();
+    const riders = await Rider.countDocuments();
+    res.json({ orders, customers, vendors, riders });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
