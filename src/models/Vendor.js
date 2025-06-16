@@ -8,6 +8,9 @@ const vendorSchema = new Schema({
   password: { type: String, required: true },
   address: { type: String },
   cuisine: [String],
+  openHours: String,
+  language: { type: String, default: 'en' },
+  balance: { type: Number, default: 0 },
   rating: { type: Number, default: 0 },
   reviews: [{ type: Schema.Types.ObjectId, ref: 'Review' }]
 }, { timestamps: true });

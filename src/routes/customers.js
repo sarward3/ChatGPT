@@ -49,9 +49,19 @@ router.post('/orders', auth('customer'), async (req, res) => {
     const finalTotal = Math.max(0, req.body.total - discount);
     const order = new Order({ ...req.body, customer: req.user.id, coupon: coupon ? coupon._id : undefined, finalTotal });
     await order.save();
+    await Customer.findByIdAndUpdate(req.user.id, { $inc: { loyaltyPoints: 1 } });
     res.status(201).json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+router.get('/orders', auth('customer'), async (req, res) => {
+  try {
+    const orders = await Order.find({ customer: req.user.id }).sort({ createdAt: -1 });
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

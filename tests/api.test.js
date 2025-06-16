@@ -12,6 +12,7 @@ let mongoServer;
 let customerToken;
 let vendorToken;
 let riderToken;
+let riderId;
 let adminToken;
 let vendorId;
 let orderId;
@@ -47,12 +48,26 @@ test('register vendor and login', async () => {
   expect(vendorToken).toBeDefined();
 });
 
+let menuItemId;
+
+test('vendor adds menu item', async () => {
+  const res = await request(app)
+    .post('/api/vendors/menu')
+    .set('Authorization', `Bearer ${vendorToken}`)
+    .send({ name: 'Fries', price: 5 })
+    .expect(201);
+  menuItemId = res.body._id;
+  expect(res.body.name).toBe('Fries');
+});
+
 test('register rider and login', async () => {
   const res = await request(app)
     .post('/api/riders/register')
     .send({ name: 'Bob', phone: '123456', password: 'bike' })
     .expect(201);
   riderToken = res.body.token;
+  const rider = await Rider.findOne({ phone: '123456' });
+  riderId = rider._id.toString();
   expect(riderToken).toBeDefined();
 });
 
@@ -168,4 +183,54 @@ test('customer creates support ticket', async () => {
     .send({ message: 'Help!' })
     .expect(201);
   expect(res.body.message).toBe('Help!');
+});
+
+test('customer views order history', async () => {
+  const res = await request(app)
+    .get('/api/customers/orders')
+    .set('Authorization', `Bearer ${customerToken}`)
+    .expect(200);
+  expect(res.body.length).toBeGreaterThan(0);
+});
+
+test('admin assigns rider', async () => {
+  const res = await request(app)
+    .post(`/api/admin/orders/${orderId}/assign/${riderId}`)
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(res.body.rider).toBeDefined();
+});
+
+test('vendor updates order status', async () => {
+  const res = await request(app)
+    .post(`/api/vendors/orders/${orderId}/status`)
+    .set('Authorization', `Bearer ${vendorToken}`)
+    .send({ status: 'ready' })
+    .expect(200);
+  expect(res.body.status).toBe('ready');
+});
+
+test('vendor updates menu item', async () => {
+  const res = await request(app)
+    .patch(`/api/vendors/menu/${menuItemId}`)
+    .set('Authorization', `Bearer ${vendorToken}`)
+    .send({ available: false })
+    .expect(200);
+  expect(res.body.available).toBe(false);
+});
+
+test('rider earnings endpoint', async () => {
+  const res = await request(app)
+    .get('/api/riders/earnings')
+    .set('Authorization', `Bearer ${riderToken}`)
+    .expect(200);
+  expect(res.body.earnings).toBeDefined();
+});
+
+test('admin lists users', async () => {
+  const res = await request(app)
+    .get('/api/admin/users')
+    .set('Authorization', `Bearer ${adminToken}`)
+    .expect(200);
+  expect(res.body.customers.length).toBeGreaterThan(0);
 });

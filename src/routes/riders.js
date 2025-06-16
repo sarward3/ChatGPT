@@ -37,9 +37,21 @@ router.post('/orders/:orderId/status', auth('rider'), async (req, res) => {
     order.status = req.body.status;
     order.rider = req.user.id;
     await order.save();
+    if (req.body.status === 'delivered') {
+      await Rider.findByIdAndUpdate(req.user.id, { $inc: { earnings: order.finalTotal || order.total } });
+    }
     res.json(order);
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+});
+
+router.get('/earnings', auth('rider'), async (req, res) => {
+  try {
+    const rider = await Rider.findById(req.user.id);
+    res.json({ earnings: rider.earnings });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 });
 

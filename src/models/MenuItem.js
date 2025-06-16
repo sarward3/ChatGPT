@@ -6,6 +6,8 @@ const menuItemSchema = new Schema({
   name: { type: String, required: true },
   price: { type: Number, required: true },
   description: String,
+  image: String,
+  addOns: [{ name: String, price: Number }],
   available: { type: Boolean, default: true }
 }, { timestamps: true });
 

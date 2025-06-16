@@ -26,19 +26,26 @@ These routes illustrate the basic structure of an e-commerce food app. Authentic
 - **POST /api/vendors/register** – register vendor
 - **POST /api/vendors/login** – vendor login
 - **POST /api/vendors/menu** – add menu item (authenticated)
+- **GET /api/vendors/menu/:vendorId** – list menu for vendor
+- **PATCH /api/vendors/menu/:itemId** – update menu item (authenticated)
 - **GET /api/vendors/orders/:vendorId** – list vendor orders (authenticated)
+- **POST /api/vendors/orders/:orderId/status** – update order status (authenticated)
 - **GET /api/vendors/search?q=** – search vendors by name or cuisine
 - **POST /api/vendors/coupons** – vendor issue coupon (authenticated)
 - **POST /api/riders/register** – register rider
 - **POST /api/riders/login** – rider login
 - **POST /api/riders/orders/:orderId/status** – update order status (authenticated)
+- **GET /api/riders/earnings** – view rider earnings
 - **POST /api/admin/register** – register admin
 - **POST /api/admin/login** – admin login
 - **GET /api/admin/orders** – list all orders (admin only)
+- **POST /api/admin/orders/:orderId/assign/:riderId** – assign rider to order (admin only)
 - **GET /api/admin/analytics** – simple statistics (admin only)
+- **GET /api/admin/users** – list all users
 - **POST /api/admin/coupons** – create system-wide coupon
 - **POST /api/payments** – record payment for an order
 - **POST /api/reviews** – submit rating/review for vendor (authenticated)
 - **POST /api/support** – create support ticket
+- **GET /api/customers/orders** – order history (authenticated)
 
 This codebase remains a demonstration. While additional pieces like coupons, wallet support and support tickets are present, a production system would require much deeper integrations and extensive testing.

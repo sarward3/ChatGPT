@@ -43,6 +43,29 @@ router.get('/orders', auth('admin'), async (req, res) => {
   }
 });
 
+router.post('/orders/:orderId/assign/:riderId', auth('admin'), async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId);
+    if (!order) return res.status(404).json({ error: 'Order not found' });
+    order.rider = req.params.riderId;
+    await order.save();
+    res.json(order);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+router.get('/users', auth('admin'), async (req, res) => {
+  try {
+    const customers = await Customer.find();
+    const vendors = await Vendor.find();
+    const riders = await Rider.find();
+    res.json({ customers, vendors, riders });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.get('/analytics', auth('admin'), async (req, res) => {
   try {
     const orders = await Order.countDocuments();

@@ -6,9 +6,11 @@ const customerSchema = new Schema({
   name: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   phone: { type: String },
-  address: { type: String },
+  addresses: [String],
+  language: { type: String, default: 'en' },
   password: { type: String, required: true },
-  walletBalance: { type: Number, default: 0 }
+  walletBalance: { type: Number, default: 0 },
+  loyaltyPoints: { type: Number, default: 0 }
 }, { timestamps: true });
 
 customerSchema.pre('save', async function(next) {

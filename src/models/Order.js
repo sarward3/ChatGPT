@@ -8,7 +8,8 @@ const orderSchema = new Schema({
   items: [{
     name: String,
     quantity: Number,
-    price: Number
+    price: Number,
+    addOns: [{ name: String, price: Number }]
   }],
   status: {
     type: String,
@@ -16,6 +17,7 @@ const orderSchema = new Schema({
     default: 'pending'
   },
   scheduledAt: Date,
+  notes: String,
   total: Number,
   finalTotal: Number,
   coupon: { type: Schema.Types.ObjectId, ref: 'Coupon' }
